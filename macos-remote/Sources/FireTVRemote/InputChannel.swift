@@ -76,6 +76,9 @@ final class InputChannel {
             server.terminate()
         }
         server = nil
+        // Encerrar o adb local não derruba o processo que roda na TV: sem
+        // isto fica um monkey órfão segurando a porta.
+        runAdb(["-s", target, "shell", "pkill -f 'monkey --port'"])
         runAdb(["-s", target, "forward", "--remove", "tcp:\(port)"])
     }
 
