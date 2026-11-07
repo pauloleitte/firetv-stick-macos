@@ -12,15 +12,12 @@ struct RemoteView: View {
                 settings
             }
 
-            // Um container so para todo o bloco de controles: o SwiftUI
-            // renderiza o vidro em conjunto, em vez de camada sobre camada.
-            GlassEffectContainer {
-                VStack(spacing: 16) {
-                    dPad
-                    controlRow
-                    appsRow
-                }
-            }
+            // Sem GlassEffectContainer de proposito: ele desenha um fundo
+            // opaco e mata a translucidez do painel. Os botoes usam
+            // .glassEffect() direto, que funciona igual aqui.
+            dPad
+            controlRow
+            appsRow
 
             Divider()
 
@@ -28,9 +25,6 @@ struct RemoteView: View {
         }
         .padding(18)
         .frame(width: 320)
-        // Painel translucido, no espirito da Central de Controle: o fundo
-        // da janela vira material em vez de cor solida.
-        .containerBackground(.ultraThinMaterial, for: .window)
         .onAppear {
             if !model.isConnected && !model.ip.isEmpty {
                 model.connect()

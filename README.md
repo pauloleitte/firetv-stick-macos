@@ -38,7 +38,13 @@ que aparece na TV e marque "sempre permitir".
 | `ADB.swift` | Chama o `adb` do Mac via `Process` |
 | `RemoteModel.swift` | Conexão, keycodes e lista de apps |
 | `RemoteView.swift` | Layout do controle |
-| `FireTVRemoteApp.swift` | Entrada, com `MenuBarExtra` |
+| `MenuBarController.swift` | Ícone da barra e o painel translúcido |
+| `FireTVRemoteApp.swift` | Entrada; só pendura o delegate |
+
+O ícone e o painel são montados com `NSStatusItem` e `NSPanel` em vez de
+`MenuBarExtra`: o painel do `MenuBarExtra` tem fundo opaco que o SwiftUI
+pinta na árvore de render, sem como trocar. Com janela própria o fundo é
+nosso, e cabe o material translúcido.
 
 Para trocar os apps dos atalhos, edite o `enum RemoteApp` em
 `RemoteModel.swift`. Descubra o nome do pacote com:

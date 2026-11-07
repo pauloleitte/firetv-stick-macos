@@ -3,19 +3,12 @@ import SwiftUI
 
 @main
 struct FireTVRemoteApp: App {
-    @StateObject private var model = RemoteModel()
-
-    init() {
-        // Sem ícone no Dock: o app vive só na barra de menu.
-        NSApplication.shared.setActivationPolicy(.accessory)
-    }
+    // O ícone da barra e o painel são montados pelo delegate: ver
+    // MenuBarController para o porquê de não usar MenuBarExtra.
+    @NSApplicationDelegateAdaptor(MenuBarController.self) private var controller
 
     var body: some Scene {
-        MenuBarExtra {
-            RemoteView(model: model)
-        } label: {
-            Image(systemName: "tv")
-        }
-        .menuBarExtraStyle(.window)
+        // O app vive só na barra de menu; nenhuma janela própria.
+        Settings { EmptyView() }
     }
 }
