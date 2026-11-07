@@ -119,7 +119,9 @@ struct RemoteView: View {
                 .font(.headline)
                 .foregroundStyle(.white)
                 .frame(width: 72, height: 72)
-                .glassEffect(.regular.tint(.accentColor).interactive(), in: .circle)
+                // Levantado com branco, não com cor: a paleta é neutra e
+                // quem dá o tom é o que está atrás do vidro.
+                .glassEffect(.regular.tint(.white.opacity(0.15)).interactive(), in: .circle)
                 .contentShape(.circle)
         }
         .buttonStyle(.plain)
@@ -155,7 +157,7 @@ struct RemoteView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .glassEffect(
-                            .regular.tint(app.color).interactive(),
+                            .regular.tint(.white.opacity(0.15)).interactive(),
                             in: .rect(cornerRadius: 12)
                         )
                         .contentShape(.rect(cornerRadius: 12))

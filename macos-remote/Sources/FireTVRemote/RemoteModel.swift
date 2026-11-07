@@ -35,14 +35,6 @@ enum RemoteApp: String, CaseIterable, Identifiable {
         case .spotify: return "com.spotify.tv.android"
         }
     }
-
-    var color: Color {
-        switch self {
-        case .uniplay: return Color(red: 0.35, green: 0.25, blue: 0.70)
-        case .youtube: return Color(red: 0.80, green: 0.10, blue: 0.10)
-        case .spotify: return Color(red: 0.11, green: 0.73, blue: 0.33)
-        }
-    }
 }
 
 @MainActor
