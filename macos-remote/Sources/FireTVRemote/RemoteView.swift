@@ -171,11 +171,9 @@ struct RemoteView: View {
 
             Spacer()
 
-            Button("Sair") {
-                NSApplication.shared.terminate(nil)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
+            // Sair saiu daqui: ficava colado nos botões de uso.
+            Text("Clique direito no ícone para sair")
+                .foregroundStyle(.tertiary)
         }
         .font(.caption)
     }

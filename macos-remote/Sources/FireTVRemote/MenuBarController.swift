@@ -52,7 +52,9 @@ final class MenuBarController: NSObject, NSApplicationDelegate {
             accessibilityDescription: "Fire TV"
         )
         item.button?.target = self
-        item.button?.action = #selector(toggle)
+        item.button?.action = #selector(statusItemClicked)
+        // Clique direito abre o menu; esquerdo abre o painel.
+        item.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
         statusItem = item
     }
 
@@ -97,6 +99,41 @@ final class MenuBarController: NSObject, NSApplicationDelegate {
     }
 
     // MARK: - Abrir e fechar
+
+    @objc private func statusItemClicked() {
+        let event = NSApp.currentEvent
+        let isRight = event?.type == .rightMouseUp
+            || event?.modifierFlags.contains(.control) == true
+        if isRight {
+            showContextMenu()
+        } else {
+            toggle()
+        }
+    }
+
+    /// Menu do clique direito. "Sair" vive aqui, e não no painel: lá ficava
+    /// colado nos botões de uso e era fácil encerrar o app sem querer.
+    private func showContextMenu() {
+        close()
+        guard let button = statusItem?.button else { return }
+        let menu = NSMenu()
+        let sair = NSMenuItem(
+            title: "Sair do Fire TV Remote",
+            action: #selector(quit),
+            keyEquivalent: "q"
+        )
+        sair.target = self
+        menu.addItem(sair)
+        menu.popUp(
+            positioning: nil,
+            at: NSPoint(x: 0, y: button.bounds.height + 4),
+            in: button
+        )
+    }
+
+    @objc private func quit() {
+        NSApplication.shared.terminate(nil)
+    }
 
     @objc private func toggle() {
         guard let panel else { return }
