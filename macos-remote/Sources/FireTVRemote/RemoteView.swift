@@ -26,18 +26,6 @@ struct RemoteView: View {
                 }
             }
 
-            HStack(spacing: 10) {
-                RemoteButton(title: "Vol −", systemImage: "speaker.minus.fill") {
-                    model.send(.volumeDown)
-                }
-                RemoteButton(title: "Mudo", systemImage: "speaker.slash.fill") {
-                    model.send(.mute)
-                }
-                RemoteButton(title: "Vol +", systemImage: "speaker.plus.fill") {
-                    model.send(.volumeUp)
-                }
-            }
-
             appsRow
 
             Divider()

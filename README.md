@@ -45,10 +45,11 @@ Para trocar os apps dos atalhos, edite o `enum RemoteApp` em
 adb -s <ip>:5555 shell pm list packages -3
 ```
 
-## Limitações conhecidas
+## Por que não há controle de volume
 
-**Os botões de volume não funcionam em Fire TV Stick com saída HDMI.** Não é
-bug do app — não existe caminho via ADB:
+**O app não tem botões de volume de propósito.** Eles existiam, não tinham
+como funcionar e foram removidos. Em Fire TV Stick com saída HDMI não há
+caminho via ADB:
 
 - O Android trata o HDMI como saída de volume fixo: o `STREAM_MUSIC` fica
   travado no máximo e `input keyevent KEYCODE_VOLUME_UP` não tem efeito.

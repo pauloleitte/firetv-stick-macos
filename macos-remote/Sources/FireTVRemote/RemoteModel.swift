@@ -10,9 +10,6 @@ enum RemoteKey: String {
     case back = "KEYCODE_BACK"
     case home = "KEYCODE_HOME"
     case playPause = "KEYCODE_MEDIA_PLAY_PAUSE"
-    case volumeUp = "KEYCODE_VOLUME_UP"
-    case volumeDown = "KEYCODE_VOLUME_DOWN"
-    case mute = "KEYCODE_VOLUME_MUTE"
 }
 
 enum RemoteApp: String, CaseIterable, Identifiable {
