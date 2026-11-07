@@ -16,34 +16,34 @@ enum RemoteKey: String {
 }
 
 enum RemoteApp: String, CaseIterable, Identifiable {
-    case netflix
+    case uniplay
     case youtube
-    case primeVideo
+    case spotify
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
-        case .netflix: return "Netflix"
+        case .uniplay: return "Uniplay"
         case .youtube: return "YouTube"
-        case .primeVideo: return "Prime"
+        case .spotify: return "Spotify"
         }
     }
 
     /// Nome do pacote Android. Confira no seu Fire TV se algum não abrir.
     var package: String {
         switch self {
-        case .netflix: return "com.netflix.ninja"
+        case .uniplay: return "com.uplay.android.one"
         case .youtube: return "com.amazon.firetv.youtube"
-        case .primeVideo: return "com.amazon.avod.thirdpartyclient"
+        case .spotify: return "com.spotify.tv.android"
         }
     }
 
     var color: Color {
         switch self {
-        case .netflix: return Color(red: 0.70, green: 0.05, blue: 0.08)
+        case .uniplay: return Color(red: 0.35, green: 0.25, blue: 0.70)
         case .youtube: return Color(red: 0.80, green: 0.10, blue: 0.10)
-        case .primeVideo: return Color(red: 0.10, green: 0.45, blue: 0.70)
+        case .spotify: return Color(red: 0.11, green: 0.73, blue: 0.33)
         }
     }
 }
@@ -97,7 +97,12 @@ final class RemoteModel: ObservableObject {
     func launch(_ app: RemoteApp) {
         let target = target
         Task.detached {
-            ADB.shared.launch(package: app.package, target: target)
+            let result = ADB.shared.launch(package: app.package, target: target)
+            if !result.ok {
+                await MainActor.run {
+                    self.status = "\(app.title): \(result.message)"
+                }
+            }
         }
     }
 }

@@ -59,11 +59,33 @@ final class ADB {
         run(["-s", target, "shell", "input", "keyevent", keycode])
     }
 
-    func launch(package: String, target: String) {
-        run([
-            "-s", target, "shell", "monkey",
-            "-p", package,
-            "-c", "android.intent.category.LAUNCHER", "1",
+    /// Descobre a activity de launcher do pacote. Vazio = app nao instalado.
+    private func resolveActivity(package: String, target: String) -> String {
+        let result = run([
+            "-s", target, "shell", "cmd", "package", "resolve-activity",
+            "--brief", "-c", "android.intent.category.LAUNCHER", package,
         ])
+        let last = result.output
+            .split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .last { !$0.isEmpty } ?? ""
+        return last.contains("/") ? last : ""
+    }
+
+    /// `monkey` deixa de injetar em algumas versoes do Fire OS; `am start` e o
+    /// caminho correto e ainda deixa distinguir "app ausente" de "falha ao abrir".
+    func launch(package: String, target: String) -> (ok: Bool, message: String) {
+        let activity = resolveActivity(package: package, target: target)
+        guard !activity.isEmpty else {
+            return (false, "\(package) nao esta instalado na TV")
+        }
+        let result = run([
+            "-s", target, "shell", "am", "start",
+            "-a", "android.intent.action.MAIN",
+            "-c", "android.intent.category.LAUNCHER",
+            "-n", activity,
+        ])
+        let ok = result.status == 0 && !result.output.contains("Error")
+        return (ok, result.output)
     }
 }

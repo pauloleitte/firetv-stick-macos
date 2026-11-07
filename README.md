@@ -1,39 +1,86 @@
-# Fire TV Menu Bar
+# Fire TV Remote (macOS)
 
-Controle o Fire TV Stick a partir da barra de menu do macOS, usando ADB pela rede Wi-Fi.
+Controle o Fire TV Stick pela barra de menu do macOS, via ADB na rede Wi-Fi.
+Clique no ícone 📺 e aparece um controle com direcional, Voltar, Home,
+Play/Pause e atalhos para apps.
+
+App nativo em SwiftUI, em `macos-remote/`.
 
 ## Pré-requisitos
 
-1. Modo desenvolvedor ativo na TV: Configurações → Meu Fire TV → Sobre, selecione o nome do aparelho e aperte OK ~7 vezes. Depois, em Opções do desenvolvedor, ative **ADB debugging**.
-2. ADB instalado no Mac: `brew install android-platform-tools`
-3. Python 3 e as dependências:
+1. **Xcode 15+**
+2. **ADB**: `brew install android-platform-tools`
+3. **Depuração ADB na TV**: Configurações → Meu Fire TV → Sobre, aperte OK
+   ~7 vezes no nome do aparelho; depois ative **Depuração ADB** em
+   Opções do desenvolvedor.
+
+## Como rodar
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+cd macos-remote && swift build && .build/debug/FireTVRemote
 ```
 
-## Configuração
+Ou abra `macos-remote/Package.swift` no Xcode e aperte ⌘R.
 
-Copie o arquivo de exemplo e preencha o IP da TV:
+Na primeira execução, clique na engrenagem e digite o IP da TV. Ele fica
+salvo no Mac (`UserDefaults`, chave `tvIP`). Aceite o pedido de autorização
+que aparece na TV e marque "sempre permitir".
+
+> Reserve um IP fixo para o stick no roteador. Se o IP mudar, o app perde a
+> conexão e é preciso digitar o novo.
+
+## Estrutura
+
+| Arquivo | Papel |
+|---|---|
+| `ADB.swift` | Chama o `adb` do Mac via `Process` |
+| `RemoteModel.swift` | Conexão, keycodes e lista de apps |
+| `RemoteView.swift` | Layout do controle |
+| `FireTVRemoteApp.swift` | Entrada, com `MenuBarExtra` |
+
+Para trocar os apps dos atalhos, edite o `enum RemoteApp` em
+`RemoteModel.swift`. Descubra o nome do pacote com:
 
 ```bash
-cp config.example.json config.json
+adb -s <ip>:5555 shell pm list packages -3
 ```
 
-O `config.json` fica fora do Git (está no `.gitignore`), então o IP da sua rede não sobe para o repositório. Os nomes de pacote dos apps em `apps` podem ser trocados por qualquer outro.
+## Limitações conhecidas
 
-## Uso
+**Os botões de volume não funcionam em Fire TV Stick com saída HDMI.** Não é
+bug do app — não existe caminho via ADB:
+
+- O Android trata o HDMI como saída de volume fixo: o `STREAM_MUSIC` fica
+  travado no máximo e `input keyevent KEYCODE_VOLUME_UP` não tem efeito.
+- O CEC direto exige a permissão `android.permission.HDMI_CEC`, que o shell
+  do ADB não tem (`Neither user 2000 nor current process has ...`).
+- `cmd media_session volume` responde "No shell command implementation" e o
+  `media` do Fire OS não tem subcomando de volume.
+
+O controle físico do Fire TV muda o volume por IR/CEC em hardware, fora do
+Android — por isso ele funciona e o ADB não. Para volume pelo Mac seria
+preciso um emissor IR na rede (ex.: um blaster Tuya).
+
+## Problemas comuns
+
+**`adb devices` mostra `offline` e o popup não aparece na TV.** O `adbd`
+trava quando o stick troca de rede: ele aceita o TCP na porta 5555 e fecha
+a conexão na hora, sem nunca mandar o pacote `AUTH` que gera o popup.
+Ligar e desligar a Depuração ADB não resolve. **Reinicie o stick** (tire da
+tomada por 10s), e depois:
 
 ```bash
-source .venv/bin/activate
-python main.py
+adb kill-server && adb connect <ip>:5555 && adb devices
 ```
 
-Um ícone de TV aparece na barra de menu. Os botões enviam comandos de controle remoto para a TV, e o item "Apps" abre os aplicativos configurados.
+**Não sabe o IP do stick?** Procure a porta 5555 aberta na rede:
+
+```bash
+for i in $(seq 1 254); do (nc -z -G 1 192.168.0.$i 5555 2>/dev/null && echo "192.168.0.$i") & done; wait
+```
 
 ## Observações
 
-- O ADB fica aberto na rede local. Desative a depuração na TV quando não estiver usando.
-- Se o IP da TV mudar, reserve um IP fixo no roteador.
+- O app não tem ícone no Dock — vive só na barra de menu.
+- O ADB fica aberto na rede local. Desative a depuração na TV quando não
+  estiver usando.
