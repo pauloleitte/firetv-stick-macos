@@ -84,10 +84,34 @@ final class RemoteModel: ObservableObject {
         }
     }
 
+    /// Teclas aguardando envio, acumuladas enquanto uma chamada está em voo.
+    private var pending: [RemoteKey] = []
+    private var isSending = false
+
+    /// Teto por chamada, para o comando não crescer sem limite se alguém
+    /// segurar o botão. O resto vai na leva seguinte.
+    private static let maxPerBatch = 12
+
     func send(_ key: RemoteKey) {
+        pending.append(key)
+        sendNextBatch()
+    }
+
+    private func sendNextBatch() {
+        guard !isSending, !pending.isEmpty else { return }
+        let batch = Array(pending.prefix(Self.maxPerBatch))
+        pending.removeFirst(batch.count)
+        isSending = true
+
         let target = target
+        let codes = batch.map(\.rawValue)
         Task.detached {
-            ADB.shared.keyEvent(key.rawValue, target: target)
+            ADB.shared.keyEvents(codes, target: target)
+            await MainActor.run {
+                self.isSending = false
+                // O que chegou durante o envio sai agora, junto.
+                self.sendNextBatch()
+            }
         }
     }
 

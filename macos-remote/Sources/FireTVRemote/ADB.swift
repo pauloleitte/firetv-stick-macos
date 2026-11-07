@@ -55,8 +55,15 @@ final class ADB {
         return (ok, text)
     }
 
-    func keyEvent(_ keycode: String, target: String) {
-        run(["-s", target, "shell", "input", "keyevent", keycode])
+    /// Envia uma ou mais teclas numa chamada só.
+    ///
+    /// Cada `adb shell input` sobe uma VM no Fire TV e custa ~1,5s, mas o
+    /// comando aceita vários keycodes de uma vez e paga esse custo uma vez
+    /// só — cinco teclas juntas levam o mesmo que uma. Por isso o modelo
+    /// agrupa os toques rápidos em vez de disparar uma chamada por tecla.
+    func keyEvents(_ keycodes: [String], target: String) {
+        guard !keycodes.isEmpty else { return }
+        run(["-s", target, "shell", "input", "keyevent"] + keycodes)
     }
 
     /// Descobre a activity de launcher do pacote. Vazio = app nao instalado.
