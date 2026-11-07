@@ -28,6 +28,9 @@ struct RemoteView: View {
         }
         .padding(18)
         .frame(width: 320)
+        // Painel translucido, no espirito da Central de Controle: o fundo
+        // da janela vira material em vez de cor solida.
+        .containerBackground(.ultraThinMaterial, for: .window)
         .onAppear {
             if !model.isConnected && !model.ip.isEmpty {
                 model.connect()
