@@ -16,13 +16,33 @@ App nativo em SwiftUI, em `macos-remote/`.
    ~7 vezes no nome do aparelho; depois ative **Depuração ADB** em
    Opções do desenvolvedor.
 
-## Como rodar
+## Como instalar
+
+Monte o `.app` e mova para a pasta de Aplicativos:
+
+```bash
+cd macos-remote && ./build-app.sh && mv FireTVRemote.app /Applications/
+```
+
+Aí ele abre pelo Launchpad como qualquer app, e pode entrar em Ajustes →
+Geral → Itens de Início de Sessão para subir junto com o Mac.
+
+O script compila em release, monta o bundle, gera o ícone com as
+ferramentas do próprio macOS (`Resources/make-icon.swift` + `iconutil`) e
+assina ad-hoc — sem isso o macOS pode recusar abrir.
+
+## Como rodar durante o desenvolvimento
 
 ```bash
 cd macos-remote && swift build && .build/debug/FireTVRemote
 ```
 
 Ou abra `macos-remote/Package.swift` no Xcode e aperte ⌘R.
+
+> O IP fica no `UserDefaults`, sob o identificador do bundle
+> (`com.pauloleite.firetvremote`) quando roda como `.app`, e sob
+> `FireTVRemote` quando roda solto. São domínios diferentes: ao trocar de
+> um para o outro, digite o IP de novo na engrenagem.
 
 Na primeira execução, clique na engrenagem e digite o IP da TV. Ele fica
 salvo no Mac (`UserDefaults`, chave `tvIP`). Aceite o pedido de autorização
@@ -39,7 +59,10 @@ que aparece na TV e marque "sempre permitir".
 | `RemoteModel.swift` | Conexão, keycodes e lista de apps |
 | `RemoteView.swift` | Layout do controle |
 | `MenuBarController.swift` | Ícone da barra e o painel translúcido |
+| `InputChannel.swift` | Canal rápido de teclas (socket do monkey) |
 | `FireTVRemoteApp.swift` | Entrada; só pendura o delegate |
+| `build-app.sh` | Monta o `.app` |
+| `Resources/` | `Info.plist` e o gerador do ícone |
 
 O ícone e o painel são montados com `NSStatusItem` e `NSPanel` em vez de
 `MenuBarExtra`: o painel do `MenuBarExtra` tem fundo opaco que o SwiftUI
