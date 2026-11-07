@@ -103,6 +103,10 @@ struct RemoteView: View {
                 .font(.title2.weight(.semibold))
                 .frame(width: 72, height: 72)
                 .glassEffect(.regular.interactive(), in: .circle)
+                // Sem isto o clique só vale em cima do glifo: com
+                // .buttonStyle(.plain) o SwiftUI usa o conteúdo como área
+                // sensível, e todo o vidro em volta vira zona morta.
+                .contentShape(.circle)
         }
         .buttonStyle(.plain)
     }
@@ -116,6 +120,7 @@ struct RemoteView: View {
                 .foregroundStyle(.white)
                 .frame(width: 72, height: 72)
                 .glassEffect(.regular.tint(.accentColor).interactive(), in: .circle)
+                .contentShape(.circle)
         }
         .buttonStyle(.plain)
     }
@@ -153,6 +158,7 @@ struct RemoteView: View {
                             .regular.tint(app.color).interactive(),
                             in: .rect(cornerRadius: 12)
                         )
+                        .contentShape(.rect(cornerRadius: 12))
                 }
                 .buttonStyle(.plain)
             }
@@ -196,6 +202,7 @@ struct RemoteButton: View {
             .frame(maxWidth: .infinity)
             .frame(height: 50)
             .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 12))
+            .contentShape(.rect(cornerRadius: 12))
         }
         .buttonStyle(.plain)
     }
