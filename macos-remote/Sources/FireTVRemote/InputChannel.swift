@@ -121,6 +121,11 @@ final class InputChannel {
             return false
         }
 
+        // Sem isto, escrever num socket cujo servidor morreu entrega um
+        // SIGPIPE e o processo morre em silencio, sem log nem crash report.
+        var yes: Int32 = 1
+        setsockopt(s, SOL_SOCKET, SO_NOSIGPIPE, &yes, socklen_t(MemoryLayout<Int32>.size))
+
         // Sem timeout, um servidor morto travaria a thread de envio.
         var tv = timeval(tv_sec: 2, tv_usec: 0)
         setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))

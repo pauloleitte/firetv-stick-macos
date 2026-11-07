@@ -31,10 +31,13 @@ final class MenuBarController: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         buildStatusItem()
         buildPanel()
-
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        // Deixa rastro no log do sistema: se o app sumir sozinho, dá para
+        // saber se foi encerramento normal (`log show --predicate
+        // 'process == "FireTVRemote"'`) ou morte abrupta, que não loga nada.
+        NSLog("FireTVRemote: encerrando normalmente")
         removeOutsideClickMonitor()
         // Sem isto o servidor do monkey ficaria preso rodando na TV.
         model.shutdown()
