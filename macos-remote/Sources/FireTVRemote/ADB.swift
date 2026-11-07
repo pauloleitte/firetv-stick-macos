@@ -13,6 +13,10 @@ final class ADB {
 
     var isInstalled: Bool { adbPath != nil }
 
+    /// Caminho do adb, para quem precisa chamar o binário direto
+    /// (ver InputChannel).
+    var path: String? { adbPath }
+
     private var adbPath: String? {
         candidatePaths.first { FileManager.default.isExecutableFile(atPath: $0) }
     }

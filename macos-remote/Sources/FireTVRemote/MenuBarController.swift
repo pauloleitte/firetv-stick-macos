@@ -36,6 +36,8 @@ final class MenuBarController: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         removeOutsideClickMonitor()
+        // Sem isto o servidor do monkey ficaria preso rodando na TV.
+        model.shutdown()
     }
 
     // MARK: - Montagem

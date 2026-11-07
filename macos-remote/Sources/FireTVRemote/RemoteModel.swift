@@ -52,6 +52,9 @@ final class RemoteModel: ObservableObject {
     @Published var ip: String {
         didSet { UserDefaults.standard.set(ip, forKey: Self.ipKey) }
     }
+    /// Canal rápido (socket do monkey). Nil enquanto não houver conexão.
+    private var channel: InputChannel?
+
     @Published private(set) var isConnected = false
     @Published private(set) var status = "Desconectado"
 
@@ -75,7 +78,16 @@ final class RemoteModel: ObservableObject {
         let target = target
         Task.detached {
             let result = ADB.shared.connect(to: target)
+            // O canal rápido depende da conexão de pé, então sobe aqui.
+            // Se não subir, send() cai sozinho no caminho lento.
+            let fastChannel: InputChannel? = {
+                guard result.ok, let adbPath = ADB.shared.path else { return nil }
+                let candidate = InputChannel(adbPath: adbPath, target: target)
+                return candidate.start() ? candidate : nil
+            }()
             await MainActor.run {
+                self.channel?.stop()
+                self.channel = fastChannel
                 self.isConnected = result.ok
                 self.status = result.ok
                     ? "Conectado a \(self.ip)"
@@ -92,6 +104,12 @@ final class RemoteModel: ObservableObject {
     /// segurar o botão. O resto vai na leva seguinte.
     private static let maxPerBatch = 12
 
+    /// Derruba o servidor do monkey na TV. Chamado ao sair do app.
+    func shutdown() {
+        channel?.stop()
+        channel = nil
+    }
+
     func send(_ key: RemoteKey) {
         pending.append(key)
         sendNextBatch()
@@ -105,8 +123,12 @@ final class RemoteModel: ObservableObject {
 
         let target = target
         let codes = batch.map(\.rawValue)
+        let channel = channel
         Task.detached {
-            ADB.shared.keyEvents(codes, target: target)
+            // Socket do monkey (~40ms); se falhar, input keyevent (~1,3s).
+            if channel?.send(codes) != true {
+                ADB.shared.keyEvents(codes, target: target)
+            }
             await MainActor.run {
                 self.isSending = false
                 // O que chegou durante o envio sai agora, junto.
