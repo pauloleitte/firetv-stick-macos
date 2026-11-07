@@ -55,20 +55,20 @@ class FireTVMenu(rumps.App):
         self.adb = find_adb(self.config)
         self.target = f"{self.config['ip']}:{self.config.get('port', 5555)}"
         self.status_item = rumps.MenuItem("Conectando...")
-        self.status_item.set_callback(None)
 
-        self.menu = [self.status_item, None]
+        items = [self.status_item, None]
         for label in KEYS:
-            self.menu.append(rumps.MenuItem(label, callback=self.send_key))
-        self.menu.append(None)
+            items.append(rumps.MenuItem(label, callback=self.send_key))
+        items.append(None)
 
         self.apps_menu = rumps.MenuItem("Apps")
-        for name, package in self.config.get("apps", {}).items():
+        for name in self.config.get("apps", {}):
             self.apps_menu.add(rumps.MenuItem(name, callback=self.open_app))
-        self.menu.append(self.apps_menu)
-        self.menu.append(None)
-        self.menu.append(rumps.MenuItem("Reconectar", callback=self.connect))
-        self.menu.append(rumps.MenuItem("Sair", callback=rumps.quit_application))
+        items.append(self.apps_menu)
+        items.append(None)
+        items.append(rumps.MenuItem("Reconectar", callback=self.connect))
+        items.append(rumps.MenuItem("Sair", callback=rumps.quit_application))
+        self.menu = items
 
         self.connect(None)
 
