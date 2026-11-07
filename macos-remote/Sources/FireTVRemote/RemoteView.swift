@@ -12,21 +12,15 @@ struct RemoteView: View {
                 settings
             }
 
-            dPad
-
-            HStack(spacing: 10) {
-                RemoteButton(title: "Voltar", systemImage: "arrow.uturn.backward") {
-                    model.send(.back)
-                }
-                RemoteButton(title: "Home", systemImage: "house.fill") {
-                    model.send(.home)
-                }
-                RemoteButton(title: "Play/Pause", systemImage: "playpause.fill") {
-                    model.send(.playPause)
+            // Um container so para todo o bloco de controles: o SwiftUI
+            // renderiza o vidro em conjunto, em vez de camada sobre camada.
+            GlassEffectContainer {
+                VStack(spacing: 16) {
+                    dPad
+                    controlRow
+                    appsRow
                 }
             }
-
-            appsRow
 
             Divider()
 
@@ -66,7 +60,7 @@ struct RemoteView: View {
             } label: {
                 Image(systemName: "gearshape")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.glass)
             .help("Configurações")
         }
     }
@@ -78,6 +72,7 @@ struct RemoteView: View {
             Button("Conectar") {
                 model.connect()
             }
+            .buttonStyle(.glassProminent)
         }
     }
 
@@ -110,7 +105,7 @@ struct RemoteView: View {
             Image(systemName: systemImage)
                 .font(.title2.weight(.semibold))
                 .frame(width: 72, height: 72)
-                .background(Circle().fill(.quaternary))
+                .glassEffect(.regular.interactive(), in: .circle)
         }
         .buttonStyle(.plain)
     }
@@ -123,9 +118,25 @@ struct RemoteView: View {
                 .font(.headline)
                 .foregroundStyle(.white)
                 .frame(width: 72, height: 72)
-                .background(Circle().fill(Color.accentColor))
+                .glassEffect(.regular.tint(.accentColor).interactive(), in: .circle)
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Controles
+
+    private var controlRow: some View {
+        HStack(spacing: 10) {
+            RemoteButton(title: "Voltar", systemImage: "arrow.uturn.backward") {
+                model.send(.back)
+            }
+            RemoteButton(title: "Home", systemImage: "house.fill") {
+                model.send(.home)
+            }
+            RemoteButton(title: "Play/Pause", systemImage: "playpause.fill") {
+                model.send(.playPause)
+            }
+        }
     }
 
     // MARK: - Apps
@@ -141,9 +152,9 @@ struct RemoteView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(app.color)
+                        .glassEffect(
+                            .regular.tint(app.color).interactive(),
+                            in: .rect(cornerRadius: 12)
                         )
                 }
                 .buttonStyle(.plain)
@@ -173,7 +184,7 @@ struct RemoteView: View {
     }
 }
 
-/// Botão retangular com ícone e legenda, usado nas linhas de controles.
+/// Botão retangular com ícone e legenda, usado na linha de controles.
 struct RemoteButton: View {
     let title: String
     let systemImage: String
@@ -189,10 +200,7 @@ struct RemoteButton: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(.quaternary)
-            )
+            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 12))
         }
         .buttonStyle(.plain)
     }

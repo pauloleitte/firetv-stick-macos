@@ -8,7 +8,9 @@ App nativo em SwiftUI, em `macos-remote/`.
 
 ## Pré-requisitos
 
-1. **Xcode 15+**
+1. **macOS 26+ e Xcode 26+** — a interface usa Liquid Glass
+   (`.glassEffect`, `GlassEffectContainer`), disponível só a partir do
+   macOS 26.
 2. **ADB**: `brew install android-platform-tools`
 3. **Depuração ADB na TV**: Configurações → Meu Fire TV → Sobre, aperte OK
    ~7 vezes no nome do aparelho; depois ative **Depuração ADB** em
